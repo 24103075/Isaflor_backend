@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import cl.isaflor.isaflor.dto.UsuarioDTO;
 import cl.isaflor.isaflor.model.Usuario;
 import cl.isaflor.isaflor.service.UsuarioService;
 
@@ -14,7 +15,7 @@ import cl.isaflor.isaflor.service.UsuarioService;
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
 
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
@@ -22,26 +23,29 @@ public class UsuarioController {
 
     // Listar todos los usuarios
     @GetMapping
-    public ResponseEntity<List<Usuario>> listarUsuarios() {
+    public ResponseEntity<List<UsuarioDTO>> listarUsuarios() {
         return ResponseEntity.ok(usuarioService.listarUsuarios());
     }
 
     // Buscar usuario por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<UsuarioDTO> buscarPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
     }
 
     // Registrar usuario
     @PostMapping
-    public ResponseEntity<Usuario> guardarUsuario(@RequestBody Usuario usuario) {
-        Usuario nuevoUsuario = usuarioService.guardarUsuario(usuario);
+    public ResponseEntity<UsuarioDTO> guardarUsuario(@RequestBody Usuario usuario) {
+        UsuarioDTO nuevoUsuario = usuarioService.guardarUsuario(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
     }
 
     // Actualizar usuario
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> actualizarUsuario(@PathVariable Integer id, @RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioDTO> actualizarUsuario(
+            @PathVariable Integer id,
+            @RequestBody Usuario usuario) {
+
         return ResponseEntity.ok(usuarioService.actualizarUsuario(id, usuario));
     }
 
