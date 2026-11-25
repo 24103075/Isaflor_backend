@@ -1,5 +1,7 @@
 package cl.isaflor.isaflor.model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,7 +28,7 @@ public class DetallePedido {
 
     @Id 
     @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @Column(name = "id_pedido")
+    @Column(name = "id_pedidoDetalle")
     private Integer id_detallePedido;
 
     @NotNull(message = "La cantidad es obligatoria")
@@ -37,12 +39,12 @@ public class DetallePedido {
     @NotNull(message = "El precio unitario es obligatorio")
     @DecimalMin(value = "0.01", message = "El precio debe ser mayor que cero")
     @Column(name = "precio_unitario", nullable = false, precision = 10, scale = 2)
-    private Double precioUnitario;
+    private BigDecimal precioUnitario;
 
     @NotNull(message = "El subtotal es obligatorio")
     @DecimalMin(value = "0.01", message = "El subtotal debe ser mayor que cero")
     @Column(nullable = false)
-    private Double subTotal;
+    private BigDecimal subTotal;
 
     @ManyToOne 
     @JoinColumn (name ="id_pedido", nullable=false)

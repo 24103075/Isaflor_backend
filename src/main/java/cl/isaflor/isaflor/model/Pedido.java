@@ -1,5 +1,6 @@
 package cl.isaflor.isaflor.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -35,7 +36,7 @@ public class Pedido {
     private String estado;
 
     @Column(name = "total", precision = 10, scale = 2)
-    private Double total;
+    private BigDecimal total;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario", nullable = false)

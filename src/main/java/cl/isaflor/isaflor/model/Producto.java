@@ -1,5 +1,7 @@
 package cl.isaflor.isaflor.model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -48,7 +50,7 @@ public class Producto {
     @NotNull(message="El precio del producto es obligatorio")
     @DecimalMin(value="0.01", message="El precio del producto debe ser un valor positivo")
     @Column(nullable=false, precision=10, scale=2)
-    private Double precioProducto;
+    private BigDecimal precioProducto;
 
     @NotNull(message="El stock del producto es obligatorio")
     @Min(value=0, message="El stock del producto no puede ser negativo")
@@ -63,12 +65,12 @@ public class Producto {
     @NotNull(message="El peso del producto es obligatorio")
     @DecimalMin(value="0.01", message="El peso del producto debe ser un valor positivo")
     @Column(nullable=false, precision=10, scale=2)
-    private Double pesoProducto;
+    private BigDecimal pesoProducto;
 
     @NotNull(message="El peso volumetrico del producto es obligatorio")
     @DecimalMin(value="0.01", message="El peso volumetrico del producto debe ser un valor positivo")
     @Column(nullable=false, precision=10, scale=2)
-    private Double pesoVolumetrico;
+    private BigDecimal pesoVolumetrico;
 
     @ManyToOne
     @JoinColumn(name="idCategoria", nullable=false)
