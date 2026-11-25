@@ -42,7 +42,7 @@ public class Usuario {
     @Column(unique = true, nullable = false, length = 50)
     private String correo;
 
-    @Column(nullable = false, length = 10)
+   @Column(nullable = false, length = 255)
     private String password;
 
     @Column(name = "fecha_nacimiento", nullable = false)
