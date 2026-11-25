@@ -2,9 +2,12 @@ package cl.isaflor.isaflor.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import cl.isaflor.isaflor.model.Usuario;
 import cl.isaflor.isaflor.repository.UsuarioRepository;
 
+@Service 
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
