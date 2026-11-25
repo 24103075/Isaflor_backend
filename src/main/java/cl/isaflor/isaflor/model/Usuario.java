@@ -11,11 +11,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data 
 @Entity 
+@Builder 
 @AllArgsConstructor 
 @NoArgsConstructor 
 @Table(name = "usuarios")
@@ -51,7 +53,6 @@ public class Usuario {
 
     @Column(length = 100)
     private String direccion;
-
 
     @ManyToOne // Una Comuna pertenece a una Region.
     @JoinColumn(name = "id_comuna", nullable = false)
