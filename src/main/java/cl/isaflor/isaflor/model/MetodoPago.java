@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder 
 @AllArgsConstructor 
 @NoArgsConstructor 
-@Table (name = "metodoPago")
+@Table (name = "metodo_pago")
 public class MetodoPago {
 
     @Id
@@ -24,13 +24,13 @@ public class MetodoPago {
     @Column(name = "id_metodo_pago")
     private Integer idMetodoPago;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    @Column(length = 200)
+    @Column(name = "descripcion", length = 150)
     private String descripcion;
 
-    @Column(nullable = false)
+    @Column(name = "estado", nullable = false)
     private Boolean estado;
     
 }

@@ -31,20 +31,20 @@ public class Blog {
     @Column(name = "id_blog")
     private Integer idBlog;
 
-    @NotBlank(message = "El título es obligatorio")
+    @NotBlank(message = "El titulo es obligatorio")
     @Size(max = 150)
-    @Column(nullable = false, length = 150)
+    @Column(name = "titulo", nullable = false, length = 150)
     private String titulo;
 
     @Column(columnDefinition = "TEXT")
     private String contenido;
 
-    @NotNull(message = "La fecha de publicación es obligatoria")
+    @NotNull(message = "La fecha de publicacion es obligatoria")
     @Column(name = "fecha_publicacion", nullable = false)
     private LocalDateTime fechaPublicacion;
 
     @Size(max = 20)
-    @Column(length = 20)
+    @Column(name = "estado", length = 20)
     private String estado;
 
     @ManyToOne

@@ -23,14 +23,15 @@ public class Categoria {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "id_categoria")
     private Integer idCategoria;
     
     @NotBlank(message="El nombre de la categoria es obligatoria")
-    @Size(min=2,max=50)
-    @Column(nullable=false,length=60)
+    @Size(min=2,max=100)
+    @Column(name = "nombre_categoria",length=100)
     private String nombreCategoria;
 
-    @Column(length=200)
+    @Column(name = "descripcion", length = 255)
     private String descripcion;
 
 }

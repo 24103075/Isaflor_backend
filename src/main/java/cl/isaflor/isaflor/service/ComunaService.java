@@ -2,9 +2,12 @@ package cl.isaflor.isaflor.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import cl.isaflor.isaflor.model.Comuna;
 import cl.isaflor.isaflor.repository.ComunaRepository;
 
+@Service
 public class ComunaService {
     
     private final ComunaRepository comunaRepository;
@@ -22,7 +25,7 @@ public class ComunaService {
     public Comuna buscarPorId(Integer id) {
         return comunaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(
-                        "No se encontró la comuna con ID: " + id));
+                        "No se encontro la comuna con ID: " + id));
     }
 
     // Registrar comuna
