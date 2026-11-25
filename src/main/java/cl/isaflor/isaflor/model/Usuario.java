@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder 
 @AllArgsConstructor 
 @NoArgsConstructor 
-@Table(name = "usuarios")
+@Table(name = "usuario")
 public class Usuario {
     
     @Id
@@ -33,10 +33,10 @@ public class Usuario {
     @Column(nullable = false, length = 20)
     private String nombre;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "apellido_paterno", nullable = false, length = 20)
     private String apellidoPaterno;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "apellido_materno", nullable = false, length = 20)
     private String apellidoMaterno;
 
     @Column(unique = true, nullable = false, length = 50)
@@ -45,10 +45,10 @@ public class Usuario {
     @Column(nullable = false, length = 10)
     private String password;
 
-    @Column(nullable = false)
+    @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "tipo_usuario", nullable = false, length = 20)
     private String tipoUsuario;   //Evaluar si se trabajara con admin,cliente y venderdor.
 
     @Column(length = 100)
