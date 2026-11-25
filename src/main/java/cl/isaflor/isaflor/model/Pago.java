@@ -1,5 +1,6 @@
 package cl.isaflor.isaflor.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -41,7 +42,7 @@ public class Pago {
     @NotNull(message = "El monto del pago es obligatorio")
     @DecimalMin(value = "0.01", message = "El monto debe ser mayor que cero")
     @Column(nullable = false, precision = 10, scale = 2)
-    private Double monto;
+    private BigDecimal monto;
 
     @NotBlank(message = "El estado del pago es obligatorio")
     @Size(max = 30, message = "El estado del pago no puede superar los 30 caracteres")
