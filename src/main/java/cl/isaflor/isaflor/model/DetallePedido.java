@@ -23,17 +23,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor 
 @Builder 
 @NoArgsConstructor 
-@Table (name = "detallePedido")
+@Table (name = "detalle_pedido")
 public class DetallePedido {
 
     @Id 
     @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @Column(name = "id_pedidoDetalle")
-    private Integer id_detallePedido;
+    @Column(name = "id_detalle")
+    private Integer idDetalle;
 
     @NotNull(message = "La cantidad es obligatoria")
-    @Min(value = 1, message = "La cantidad debe ser como mínimo 1")
-    @Column(nullable = false)
+    @Min(value = 1, message = "La cantidad debe ser como minimo 1")
+    @Column(name = "cantidad",nullable = false)
     private Integer cantidad;
 
     @NotNull(message = "El precio unitario es obligatorio")
@@ -43,13 +43,18 @@ public class DetallePedido {
 
     @NotNull(message = "El subtotal es obligatorio")
     @DecimalMin(value = "0.01", message = "El subtotal debe ser mayor que cero")
-    @Column(nullable = false)
+    @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subTotal;
 
+    @NotNull(message = "El pedido es obligatorio")
     @ManyToOne 
     @JoinColumn (name ="id_pedido", nullable=false)
     private Pedido pedido;
 
+    @NotNull(message = "El producto es obligatorio")
+    @ManyToOne 
+    @JoinColumn(name = "id_producto", nullable = false)
+    private Producto producto;
 
 
     

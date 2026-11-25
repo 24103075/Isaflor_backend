@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder 
 @AllArgsConstructor 
 @NoArgsConstructor 
-@Table (name = "metodoEnvio")
+@Table (name = "metodo_envio")
 public class MetodoEnvio {
 
 

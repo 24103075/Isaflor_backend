@@ -71,7 +71,7 @@ public class UsuarioService {
     private Usuario buscarUsuarioEntidad(Integer id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(
-                        "No se encontró el usuario con ID: " + id));
+                        "No se encontro el usuario con ID: " + id));
     }
 
     // Eliminar usuario
