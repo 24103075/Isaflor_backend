@@ -33,9 +33,9 @@ public class Video {
     @JoinColumn(name = "id_blog", nullable = false)
     private Blog blog;
 
-    @NotBlank(message = "El título del video es obligatorio")
+    @NotBlank(message = "El titulo del video es obligatorio")
     @Size(max = 150)
-    @Column(nullable = false, length = 150)
+    @Column(name = "titulo", nullable = false, length = 150)
     private String titulo;
 
     @NotBlank(message = "La URL del video es obligatoria")
@@ -44,6 +44,6 @@ public class Video {
     private String urlVideo;
 
     @Size(max = 255)
-    @Column(length = 255)
+    @Column(name = "descripcion", length = 255)
     private String descripcion;
 }

@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder 
 @AllArgsConstructor 
 @NoArgsConstructor 
-@Table (name = "tipoDocumento")
+@Table (name = "tipo_documento")
 public class TipoDocumento {
 
 
@@ -33,7 +33,7 @@ public class TipoDocumento {
     private String nombreDocumento;
 
     @Size(max = 150)
-    @Column(length = 150)
+    @Column(name = "descripcion", length = 150)
     private String descripcion;
     
 }

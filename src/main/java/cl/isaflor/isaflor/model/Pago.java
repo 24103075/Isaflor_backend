@@ -41,7 +41,7 @@ public class Pago {
 
     @NotNull(message = "El monto del pago es obligatorio")
     @DecimalMin(value = "0.01", message = "El monto debe ser mayor que cero")
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "monto", nullable = false, precision = 10, scale = 2)
     private BigDecimal monto;
 
     @NotBlank(message = "El estado del pago es obligatorio")

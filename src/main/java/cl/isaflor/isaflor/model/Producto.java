@@ -29,53 +29,53 @@ import lombok.NoArgsConstructor;
 public class Producto {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_producto")
     private Integer idProducto;
 
-    @NotBlank(message="El codigo del producto es obligatorio")
-    @Size(min=2,max=50)
-    @Column(nullable=false,length=60)
+    @NotBlank(message = "El codigo del producto es obligatorio")
+    @Size(min = 2, max = 20)
+    @Column(name = "codigo", nullable = false, length = 20)
     private String codigoProducto;
 
-    @NotBlank(message="El nombre del producto es obligatorio")
-    @Size(min=2,max=50)
-    @Column(nullable=false,length=60)
+    @NotBlank(message = "El nombre del producto es obligatorio")
+    @Size(min = 2, max = 100)
+    @Column(name = "nombre", nullable = false, length = 100)
     private String nombreProducto;
 
-    @NotBlank(message="La descripcion del producto es obligatoria")
-    @Size(min=2,max=200)
-    @Column(nullable=false,length=200)
+    @NotBlank(message = "La descripcion del producto es obligatoria")
+    @Size(min = 2, max = 255)
+    @Column(name = "descripcion", nullable = false, length = 255)
     private String descripcion;
 
-    @NotNull(message="El precio del producto es obligatorio")
-    @DecimalMin(value="0.01", message="El precio del producto debe ser un valor positivo")
-    @Column(nullable=false, precision=10, scale=2)
+    @NotNull(message = "El precio del producto es obligatorio")
+    @DecimalMin(value = "0.01", message = "El precio debe ser positivo")
+    @Column(name = "precio", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioProducto;
 
-    @NotNull(message="El stock del producto es obligatorio")
-    @Min(value=0, message="El stock del producto no puede ser negativo")
-    @Column(nullable=false)
+    @NotNull(message = "El stock es obligatorio")
+    @Min(value = 0, message = "El stock no puede ser negativo")
+    @Column(name = "stock", nullable = false)
     private Integer stockProducto;
 
-    @NotNull(message="El stock critico del producto es obligatorio")
-    @Min(value=0, message="El stock critico del producto no puede ser negativo")
-    @Column(nullable=false)
+    @NotNull(message = "El stock critico es obligatorio")
+    @Min(value = 0, message = "El stock critico no puede ser negativo")
+    @Column(name = "stock_critico", nullable = false)
     private Integer stockCritico;
 
-    @NotNull(message="El peso del producto es obligatorio")
-    @DecimalMin(value="0.01", message="El peso del producto debe ser un valor positivo")
-    @Column(nullable=false, precision=10, scale=2)
+    @NotNull(message = "El peso del producto es obligatorio")
+    @DecimalMin(value = "0.01", message = "El peso debe ser positivo")
+    @Column(name = "peso_normal", nullable = false, precision = 10, scale = 2)
     private BigDecimal pesoProducto;
 
-    @NotNull(message="El peso volumetrico del producto es obligatorio")
-    @DecimalMin(value="0.01", message="El peso volumetrico del producto debe ser un valor positivo")
-    @Column(nullable=false, precision=10, scale=2)
+    @NotNull(message = "El peso volumetrico es obligatorio")
+    @DecimalMin(value = "0.01", message = "El peso volumetrico debe ser positivo")
+    @Column(name = "peso_volumetrico", nullable = false, precision = 10, scale = 2)
     private BigDecimal pesoVolumetrico;
 
     @ManyToOne
-    @JoinColumn(name="idCategoria", nullable=false)
+    @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
-
 
     
 }

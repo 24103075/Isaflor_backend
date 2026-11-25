@@ -20,17 +20,13 @@ import lombok.NoArgsConstructor;
 @Builder 
 @AllArgsConstructor 
 @NoArgsConstructor 
-@Table (name = "imagenBlog")
+@Table (name = "imagen_blog")
 public class ImagenBlog {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_imagen_blog")
     private Integer idImagenBlog;
-
-    @ManyToOne
-    @JoinColumn(name = "id_blog", nullable = false)
-    private Blog blog;
 
     @NotBlank(message = "El nombre de la imagen es obligatorio")
     @Size(max = 100)
@@ -45,4 +41,8 @@ public class ImagenBlog {
     @Size(max = 255)
     @Column(length = 255)
     private String descripcion;
+
+    @ManyToOne
+    @JoinColumn(name = "id_blog", nullable = false)
+    private Blog blog;
 }
