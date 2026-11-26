@@ -15,7 +15,7 @@ import cl.isaflor.isaflor.dto.ProductoDTO;
 import cl.isaflor.isaflor.model.Producto;
 import cl.isaflor.isaflor.service.ProductoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

@@ -73,9 +73,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/usuarios",
                         "/api/v1/usuarios/**").hasRole("ADMINISTRADOR")
 
-                // Permitir operaciones de productos
-                .requestMatchers("/api/v1/productos",
+                // Consulta pública de productos
+                .requestMatchers(HttpMethod.GET,
+                        "/api/v1/productos",
                         "/api/v1/productos/**").permitAll()
+
+                // Administración de productos
+                .requestMatchers("/api/v1/productos",
+                        "/api/v1/productos/**").hasRole("ADMINISTRADOR")
 
                 // Bloquear rutas que aún no hemos configurado
                 .anyRequest().denyAll()
