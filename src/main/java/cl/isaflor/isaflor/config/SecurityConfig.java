@@ -18,48 +18,50 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
-    // Protección de contraseñas
+    // Protección de contraseñas mediante BCrypt
     @Bean
-    public PasswordEncoder passwordEncoder() { //Protege las contraseñas mediante BCrypt.
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     // Configuración de seguridad
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)  
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
 
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))  ////Define los permisos de acceso a las APIs.
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-            .csrf(csrf -> csrf.disable())   //Desactiva CSRF para nuestra futura API con autenticación JWT mediante encabezados, sin cookies de autenticación.
+            // Desactivar CSRF para la futura autenticación JWT
+            .csrf(csrf -> csrf.disable())
 
+            // No mantener sesiones en el servidor
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  //Evita mantener sesiones de autenticación en el servidor.
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             .authorizeHttpRequests(auth -> auth
 
                 // Permitir solicitudes de verificación CORS
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  //Permite acceder sin autenticación.
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 // Registro público de clientes
                 .requestMatchers(HttpMethod.POST,
-                        "/api/auth/registro").permitAll()
+                        "/api/v1/auth/registro").permitAll()
 
                 // Consulta pública de comunas
                 .requestMatchers(HttpMethod.GET,
-                        "/api/comunas",
-                        "/api/comunas/**").permitAll()
+                        "/api/v1/comunas",
+                        "/api/v1/comunas/**").permitAll()
 
                 // Monitoreo de UptimeRobot
                 .requestMatchers("/actuator/health").permitAll()
 
                 // Operaciones administrativas de usuarios
-                .requestMatchers("/api/usuarios",
-                        "/api/usuarios/**").hasRole("ADMINISTRADOR")  //Exige el rol administrativo.
+                .requestMatchers("/api/v1/usuarios",
+                        "/api/v1/usuarios/**").hasRole("ADMINISTRADOR")
 
                 // Bloquear rutas que aún no hemos configurado
-                .anyRequest().denyAll()   
+                .anyRequest().denyAll()
             );
 
         return http.build();
@@ -67,10 +69,11 @@ public class SecurityConfig {
 
     // Configuración CORS
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {  //	Autoriza la comunicación con React.
+    public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
+        // Autorizar la comunicación con React
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173"
         ));

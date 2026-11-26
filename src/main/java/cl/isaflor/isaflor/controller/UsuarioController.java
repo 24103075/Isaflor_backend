@@ -12,7 +12,7 @@ import cl.isaflor.isaflor.model.Usuario;
 import cl.isaflor.isaflor.service.UsuarioService;
 
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/api/v1/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
