@@ -62,13 +62,27 @@ public class SecurityConfig {
                 // Monitoreo de UptimeRobot
                 .requestMatchers("/actuator/health").permitAll()
 
+                //Permitir acceso publico a swagger
+                .requestMatchers(
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**"
+                ).permitAll()
+
                 // Operaciones administrativas de usuarios
                 .requestMatchers("/api/v1/usuarios",
                         "/api/v1/usuarios/**").hasRole("ADMINISTRADOR")
 
+                // Permitir operaciones de productos
+                .requestMatchers("/api/v1/productos",
+                        "/api/v1/productos/**").permitAll()
+
                 // Bloquear rutas que aún no hemos configurado
                 .anyRequest().denyAll()
-            );
+
+                
+            );  
+            
 
         return http.build();
     }
@@ -81,7 +95,8 @@ public class SecurityConfig {
 
         // Autorizar la comunicación con React
         config.setAllowedOrigins(List.of(
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "http://localhost:8080"
         ));
 
         config.setAllowedMethods(List.of(
@@ -105,4 +120,6 @@ public class SecurityConfig {
 
         return source;
     }
+
+    
 }
