@@ -7,5 +7,5 @@ import cl.isaflor.isaflor.model.Producto;
 @Repository 
 public interface ProductoRepository extends JpaRepository<Producto, Integer>{
 
-    
+    boolean existsByCodigoProductoIgnoreCase(String codigoProducto);
 }

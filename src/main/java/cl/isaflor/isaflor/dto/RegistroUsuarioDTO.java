@@ -3,6 +3,7 @@ package cl.isaflor.isaflor.dto;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,11 +23,15 @@ public class RegistroUsuarioDTO {
     private String run;
 
     @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 50, message = "El nombre no puede superar los 50 caracteres")
     private String nombre;
 
     @NotBlank(message = "El apellido paterno es obligatorio")
+    @Size(max = 20, message = "El apellido paterno no puede superar los 20 caracteres")
     private String apellidoPaterno;
 
+    @NotBlank
+    @Column(name = "apellido_materno", nullable = false, length = 20)
     private String apellidoMaterno;
 
     @NotBlank(message = "El correo es obligatorio")

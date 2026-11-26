@@ -32,3 +32,5 @@ src/main/resources/application-local.properties
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+# Configuracion local con credenciales
+application-local.properties

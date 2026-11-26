@@ -28,7 +28,7 @@ public class Categoria {
     
     @NotBlank(message="El nombre de la categoria es obligatoria")
     @Size(min=2,max=100)
-    @Column(name = "nombre_categoria",length=100)
+    @Column(name = "nombre_categoria", nullable = false, length = 100)
     private String nombreCategoria;
 
     @Column(name = "descripcion", length = 255)
