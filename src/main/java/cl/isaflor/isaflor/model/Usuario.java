@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Pattern;
 
 @Data 
 @Entity 
@@ -65,10 +66,16 @@ public class Usuario {
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 
+    
     @NotBlank(message = "El tipo de usuario es obligatorio")
     @Size(max = 20)
+    @Pattern( //permite solo los valores "cliente" o "administrador"
+        regexp = "^(cliente|administrador)$",
+        message = "El tipo de usuario debe ser cliente o administrador"
+    )
     @Column(name = "tipo_usuario", nullable = false, length = 20)
-    private String tipoUsuario;   //Evaluar si se trabajara con admin,cliente y venderdor.
+    private String tipoUsuario;
+
 
     @Size(max = 300)
     @Column(name = "direccion", length = 300)
