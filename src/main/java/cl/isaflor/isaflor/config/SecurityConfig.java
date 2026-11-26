@@ -15,6 +15,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.DispatcherType;
+
 @Configuration
 public class SecurityConfig {
 
@@ -39,7 +41,11 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
+            // Configurar permisos de acceso
             .authorizeHttpRequests(auth -> auth
+
+                // Permitir el procesamiento interno de errores
+                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
 
                 // Permitir solicitudes de verificación CORS
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
