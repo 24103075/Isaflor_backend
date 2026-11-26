@@ -11,7 +11,7 @@ import cl.isaflor.isaflor.model.Comuna;
 import cl.isaflor.isaflor.service.ComunaService;
 
 @RestController
-@RequestMapping("/api/comunas")
+@RequestMapping("/api/v1/comunas")
 public class ComunaController {
 
     private final ComunaService comunaService;
