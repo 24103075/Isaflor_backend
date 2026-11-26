@@ -18,6 +18,7 @@ import lombok.Setter;
 public class RegistroUsuarioDTO {
 
     @NotBlank(message = "El RUN es obligatorio")
+    @Size(max = 12, message = "El RUN no puede superar los 12 caracteres")
     private String run;
 
     @NotBlank(message = "El nombre es obligatorio")
