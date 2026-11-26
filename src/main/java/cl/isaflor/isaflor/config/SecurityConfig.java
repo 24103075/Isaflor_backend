@@ -56,7 +56,7 @@ public class SecurityConfig {
 
                 // Operaciones administrativas de usuarios
                 .requestMatchers("/api/usuarios",
-                        "/api/usuarios/**").hasRole("ADMIN")  //Exige el rol administrativo.
+                        "/api/usuarios/**").hasRole("ADMINISTRADOR")  //Exige el rol administrativo.
 
                 // Bloquear rutas que aún no hemos configurado
                 .anyRequest().denyAll()   
