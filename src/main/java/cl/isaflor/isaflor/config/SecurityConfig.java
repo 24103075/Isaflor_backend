@@ -62,6 +62,10 @@ public class SecurityConfig {
                         "/api/v1/comunas",
                         "/api/v1/comunas/**").permitAll()
 
+                // Consulta publica de categorias
+                .requestMatchers(HttpMethod.GET,
+                        "/api/v1/categorias").permitAll()
+
                 // Monitoreo de UptimeRobot
                 .requestMatchers("/actuator/health").permitAll()
 
