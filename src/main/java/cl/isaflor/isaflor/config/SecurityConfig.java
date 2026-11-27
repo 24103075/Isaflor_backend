@@ -128,6 +128,11 @@ public class SecurityConfig {
                     "/api/v1/productos",
                     "/api/v1/productos/**").hasRole("ADMINISTRADOR")
 
+                // Gestionar ofertas: solo administrador
+                .requestMatchers(HttpMethod.PATCH,
+                    "/api/v1/productos/*/oferta")
+                    .hasRole("ADMINISTRADOR")
+
                 // Eliminar productos: solo administrador
                 .requestMatchers(HttpMethod.DELETE,
                     "/api/v1/productos",
