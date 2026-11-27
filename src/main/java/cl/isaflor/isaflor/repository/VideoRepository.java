@@ -7,4 +7,5 @@ import cl.isaflor.isaflor.model.Video;
 @Repository 
 public interface VideoRepository extends JpaRepository<Video, Integer>{
 
+    boolean existsByBlog_IdBlog(Integer idBlog);
 }

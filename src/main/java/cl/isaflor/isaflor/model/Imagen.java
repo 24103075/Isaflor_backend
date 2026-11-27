@@ -29,10 +29,6 @@ public class Imagen {
     @Column(name = "id_imagen")
     private Integer idImagen;
 
-    @ManyToOne
-    @JoinColumn(name = "id_producto", nullable = false)
-    private Producto producto;
-
     @NotBlank(message = "El nombre de la imagen es obligatorio")
     @Size(max = 100)
     @Column(nullable = false, length = 100)
@@ -46,5 +42,9 @@ public class Imagen {
     @Size(max = 255)
     @Column(length = 255)
     private String descripcion;
+
+    @ManyToOne
+    @JoinColumn(name = "id_producto", nullable = false)
+    private Producto producto;
     
 }

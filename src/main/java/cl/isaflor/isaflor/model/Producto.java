@@ -2,6 +2,7 @@
 package cl.isaflor.isaflor.model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import jakarta.validation.constraints.DecimalMin;
@@ -22,7 +24,9 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -32,20 +36,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "producto")
 public class Producto {
 
-    // =========================================
     // IDENTIFICADOR DEL PRODUCTO
-    // =========================================
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_producto")
     private Integer idProducto;
 
-
-    // =========================================
     // DATOS GENERALES
-    // =========================================
-
     @NotBlank(message = "El codigo del producto es obligatorio")
     @Size(min = 2, max = 20)
     @Column(name = "codigo", nullable = false, length = 20)
@@ -66,11 +63,7 @@ public class Producto {
     @Column(name = "precio", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioProducto;
 
-
-    // =========================================
     // GESTION DE OFERTAS
-    // =========================================
-
     @Builder.Default
     @NotNull(message = "El estado de la oferta es obligatorio")
     @Column(name = "en_oferta", nullable = false)
@@ -82,11 +75,7 @@ public class Producto {
     @Column(name = "precio_oferta", precision = 12, scale = 2)
     private BigDecimal precioOferta;
 
-
-    // =========================================
     // INVENTARIO
-    // =========================================
-
     @NotNull(message = "El stock es obligatorio")
     @Min(value = 0, message = "El stock no puede ser negativo")
     @Column(name = "stock", nullable = false)
@@ -97,26 +86,23 @@ public class Producto {
     @Column(name = "stock_critico", nullable = false)
     private Integer stockCritico;
 
-
-    // =========================================
     // PESOS DEL PRODUCTO (OPCIONALES)
-    // =========================================
-
     @DecimalMin(value = "0.01", message = "El peso debe ser positivo")
-    @Column(name = "peso_normal", nullable = true, precision = 10, scale = 2)
+    @Column(name = "peso_normal", precision = 10, scale = 2)
     private BigDecimal pesoProducto;
 
     @DecimalMin(value = "0.01", message = "El peso volumetrico debe ser positivo")
-    @Column(name = "peso_volumetrico", nullable = true, precision = 10, scale = 2)
+    @Column(name = "peso_volumetrico", precision = 10, scale = 2)
     private BigDecimal pesoVolumetrico;
 
-
-    // =========================================
     // RELACION CON CATEGORIA
-    // =========================================
-
     @ManyToOne
     @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
 
+    // RELACION CON IMAGENES
+    @OneToMany(mappedBy = "producto")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Imagen> imagenes;
 }

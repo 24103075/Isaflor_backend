@@ -1,0 +1,19 @@
+package cl.isaflor.isaflor.dto;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
+public class CrearDetallePedidoRequest {
+
+    @NotNull(message = "El pedido es obligatorio")
+    private Integer idPedido;
+
+    @NotNull(message = "El producto es obligatorio")
+    private Integer idProducto;
+
+    @NotNull(message = "La cantidad es obligatoria")
+    @Min(value = 1, message = "La cantidad debe ser como minimo 1")
+    private Integer cantidad;
+}

@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cl.isaflor.isaflor.dto.ProductoDTO;
 import cl.isaflor.isaflor.dto.OfertaDTO;
+import cl.isaflor.isaflor.dto.ProductoDTO;
 import cl.isaflor.isaflor.model.Producto;
 import cl.isaflor.isaflor.service.ProductoService;
 
@@ -36,11 +36,7 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
-
-    // =========================================
     // LISTAR PRODUCTOS
-    // =========================================
-
     @GetMapping
     @Operation(summary = "Listar productos",
             description = "Obtiene todos los productos registrados")
@@ -57,11 +53,7 @@ public class ProductoController {
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
-
-    // =========================================
     // BUSCAR PRODUCTO POR ID
-    // =========================================
-
     @GetMapping("/{id}")
     @Operation(summary = "Buscar producto por ID",
             description = "Obtiene un producto segun su identificador")
@@ -70,82 +62,61 @@ public class ProductoController {
     public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
 
         try {
-
             ProductoDTO producto = productoService.buscarPorId(id);
-
             return new ResponseEntity<>(producto, HttpStatus.OK);
 
         } catch (RuntimeException e) {
-
-            return new ResponseEntity<>(
-                    e.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
-
-    // =========================================
     // GUARDAR PRODUCTO
-    // =========================================
-
     @PostMapping
     @Operation(summary = "Crear producto",
             description = "Registra un nuevo producto")
     @ApiResponse(responseCode = "201", description = "Producto creado correctamente")
-    @ApiResponse(responseCode = "400", description = "Datos invalidos o codigo duplicado")
-    public ResponseEntity<?> guardar(
-            @Valid @RequestBody Producto producto) {
+    @ApiResponse(responseCode = "400", description = "Datos invalidos")
+    @ApiResponse(responseCode = "409", description = "Codigo duplicado")
+    public ResponseEntity<?> guardar(@Valid @RequestBody Producto producto) {
 
         try {
-
             ProductoDTO productoGuardado =
                     productoService.guardarProducto(producto);
 
-            return new ResponseEntity<>(
-                    productoGuardado, HttpStatus.CREATED);
+            return new ResponseEntity<>(productoGuardado, HttpStatus.CREATED);
 
         } catch (RuntimeException e) {
-
             return new ResponseEntity<>(
                     "Error al guardar: " + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
         }
     }
 
-
-    // =========================================
     // ACTUALIZAR PRODUCTO
-    // =========================================
-
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar producto",
-            description = "Actualiza los datos generales de un producto existente")
+            description = "Actualiza los datos de un producto existente")
     @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente")
-    @ApiResponse(responseCode = "400", description = "Datos invalidos o producto no encontrado")
+    @ApiResponse(responseCode = "400", description = "Datos invalidos")
+    @ApiResponse(responseCode = "404", description = "Producto no encontrado")
     public ResponseEntity<?> actualizar(
             @PathVariable Integer id,
             @Valid @RequestBody Producto producto) {
 
         try {
-
             ProductoDTO actualizado =
                     productoService.actualizarProducto(id, producto);
 
-            return new ResponseEntity<>(
-                    actualizado, HttpStatus.OK);
+            return new ResponseEntity<>(actualizado, HttpStatus.OK);
 
         } catch (RuntimeException e) {
-
             return new ResponseEntity<>(
                     "Error al actualizar: " + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
         }
     }
 
-
-    // =========================================
     // GESTIONAR OFERTA
-    // =========================================
-
     @PatchMapping("/{id}/oferta")
     @Operation(summary = "Gestionar oferta",
             description = "Activa, modifica o desactiva la oferta de un producto")
@@ -157,30 +128,20 @@ public class ProductoController {
             @Valid @RequestBody OfertaDTO oferta) {
 
         try {
-
             ProductoDTO actualizado =
                     productoService.actualizarOferta(id, oferta);
 
-            return new ResponseEntity<>(
-                    actualizado, HttpStatus.OK);
+            return new ResponseEntity<>(actualizado, HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
-
-            return new ResponseEntity<>(
-                    e.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 
         } catch (IllegalArgumentException e) {
-
-            return new ResponseEntity<>(
-                    e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-
-    // =========================================
     // ELIMINAR PRODUCTO
-    // =========================================
-
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar producto",
             description = "Elimina un producto segun su identificador")
@@ -189,15 +150,10 @@ public class ProductoController {
     public ResponseEntity<?> eliminar(@PathVariable Integer id) {
 
         try {
-
-            String mensaje =
-                    productoService.eliminarProducto(id);
-
-            return new ResponseEntity<>(
-                    mensaje, HttpStatus.OK);
+            String mensaje = productoService.eliminarProducto(id);
+            return new ResponseEntity<>(mensaje, HttpStatus.OK);
 
         } catch (RuntimeException e) {
-
             return new ResponseEntity<>(
                     "Error al eliminar: " + e.getMessage(),
                     HttpStatus.NOT_FOUND);

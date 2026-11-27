@@ -7,5 +7,4 @@ import cl.isaflor.isaflor.model.MetodoEnvio;
 @Repository 
 public interface MetodoEnvioRepository extends JpaRepository<MetodoEnvio, Integer>{
 
-    
 }
