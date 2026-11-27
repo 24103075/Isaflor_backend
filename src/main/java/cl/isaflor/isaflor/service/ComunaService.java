@@ -2,8 +2,12 @@
 package cl.isaflor.isaflor.service;
 
 import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import cl.isaflor.isaflor.model.Comuna;
 import cl.isaflor.isaflor.model.Region;
 import cl.isaflor.isaflor.repository.ComunaRepository;
@@ -27,93 +31,73 @@ public class ComunaService {
         this.comunaValidaciones = comunaValidaciones;
     }
 
-    // LISTAR COMUNAS
+    @Transactional(readOnly = true)
     public List<Comuna> listarComunas() {
-        try {
-            return comunaRepository.findAll();
-
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error al listar las comunas: " + e.getMessage(), e);
-        }
+        return comunaRepository.findAll();
     }
 
-    // BUSCAR COMUNA POR ID
+    @Transactional(readOnly = true)
     public Comuna buscarPorId(Integer id) {
-        try {
-            return buscarComunaEntidad(id);
-
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error al buscar la comuna: " + e.getMessage(), e);
-        }
+        return buscarComunaEntidad(id);
     }
 
-    // GUARDAR COMUNA
     public Comuna guardarComuna(Comuna comuna) {
-        try {
-            comunaValidaciones.validarComuna(comuna);
+        comunaValidaciones.validarComuna(comuna);
 
-            Region region = regionRepository.findById(
-                    comuna.getRegion().getIdRegion()).orElseThrow(() ->
-                    new RuntimeException("La region no existe"));
+        Region region = buscarRegionEntidad(
+                comuna.getRegion().getIdRegion());
 
-            comuna.setNombreComuna(comuna.getNombreComuna().trim());
-            comuna.setRegion(region);
+        comuna.setNombreComuna(comuna.getNombreComuna().trim());
+        comuna.setRegion(region);
 
-            return comunaRepository.save(comuna);
-
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error al guardar la comuna: " + e.getMessage(), e);
-        }
+        return comunaRepository.save(comuna);
     }
 
-    // ACTUALIZAR COMUNA
     public Comuna actualizarComuna(Integer id, Comuna datos) {
-        try {
-            Comuna comuna = buscarComunaEntidad(id);
+        Comuna existente = buscarComunaEntidad(id);
 
-            comunaValidaciones.validarComuna(datos);
+        comunaValidaciones.validarComuna(datos);
 
-            Region region = regionRepository.findById(datos.getRegion().getIdRegion())
-                    .orElseThrow(() ->new RuntimeException("La region no existe"));
+        Region region = buscarRegionEntidad(
+                datos.getRegion().getIdRegion());
 
-            comuna.setNombreComuna(datos.getNombreComuna().trim());
-            comuna.setRegion(region);
+        existente.setNombreComuna(datos.getNombreComuna().trim());
+        existente.setRegion(region);
 
-            return comunaRepository.save(comuna);
-
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error al actualizar la comuna: " + e.getMessage(), e);
-        }
+        return comunaRepository.save(existente);
     }
 
-    // ELIMINAR COMUNA
     public String eliminarComuna(Integer id) {
-        try {
-            Comuna comuna = buscarComunaEntidad(id);
+        Comuna comuna = buscarComunaEntidad(id);
 
-            comunaRepository.delete(comuna);
+        comunaRepository.delete(comuna);
 
-            return "Comuna eliminada correctamente";
-
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error al eliminar la comuna: " + e.getMessage(), e);
-        }
+        return "Comuna eliminada correctamente";
     }
 
-    // BUSCAR ENTIDAD POR ID
     private Comuna buscarComunaEntidad(Integer id) {
+        if (id == null || id <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El ID de la comuna debe ser valido");
+        }
+
         return comunaRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("No se encontro la comuna con ID: " + id));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No se encontro la comuna con ID: " + id));
+    }
+
+    private Region buscarRegionEntidad(Integer id) {
+        if (id == null || id <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El ID de la region debe ser valido");
+        }
+
+        return regionRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No se encontro la region con ID: " + id));
     }
 }

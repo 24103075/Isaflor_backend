@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class Region {
     private Integer idRegion;
 
     @NotBlank(message = "El nombre de la region es obligatorio")
+    @Size(min = 2, max = 100,message = "El nombre de la region debe tener entre 2 y 100 caracteres")
     @Column(name = "nombre_region", nullable = false, length = 100)
     private String nombreRegion;
 

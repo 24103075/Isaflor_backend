@@ -13,4 +13,6 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, In
     List<DetallePedido> findByPedido_IdPedido(Integer idPedido);
 
     List<DetallePedido> findByPedido_Usuario_CorreoIgnoreCase(String correo);
+
+    boolean existsByPedido_IdPedido(Integer idPedido);
 }

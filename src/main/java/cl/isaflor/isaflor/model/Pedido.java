@@ -32,10 +32,10 @@ public class Pedido {
     @Column(name = "fecha_pedido", nullable = false)
     private LocalDateTime fechaPedido;
 
-    @Column(name = "estado", length = 30)
+    @Column(name = "estado", nullable = false, length = 30)
     private String estado;
 
-    @Column(name = "total", precision = 10, scale = 2)
+    @Column(name = "total", nullable = false, precision = 10, scale = 2)
     private BigDecimal total;
 
     @ManyToOne
