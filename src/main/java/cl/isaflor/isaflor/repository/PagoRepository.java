@@ -6,5 +6,6 @@ import cl.isaflor.isaflor.model.Pago;
 
 @Repository 
 public interface PagoRepository extends JpaRepository<Pago, Integer>{
-    
+
+    boolean existsByMetodoPago_IdMetodoPago(Integer idMetodoPago);
 }

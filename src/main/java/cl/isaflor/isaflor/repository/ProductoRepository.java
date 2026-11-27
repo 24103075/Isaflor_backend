@@ -8,4 +8,6 @@ import cl.isaflor.isaflor.model.Producto;
 public interface ProductoRepository extends JpaRepository<Producto, Integer>{
 
     boolean existsByCodigoProductoIgnoreCase(String codigoProducto);
+
+    boolean existsByCategoria_IdCategoria(Integer idCategoria);
 }

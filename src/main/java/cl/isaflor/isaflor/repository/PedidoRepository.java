@@ -7,5 +7,5 @@ import cl.isaflor.isaflor.model.Pedido;
 @Repository 
 public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
 
-    
+    boolean existsByMetodoEnvio_IdMetodoEnvio(Integer idMetodoEnvio);
 }

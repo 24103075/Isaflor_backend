@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +25,7 @@ public class Region {
     @Column(name = "id_region")
     private Integer idRegion;
 
-    @NotNull(message = "El nombre de la region es obligatorio")
+    @NotBlank(message = "El nombre de la region es obligatorio")
     @Column(name = "nombre_region", nullable = false, length = 100)
     private String nombreRegion;
 
