@@ -28,11 +28,11 @@ public class TipoDocumento {
     private Integer idTipoDocumento;
 
     @NotBlank(message = "El nombre del documento es obligatorio")
-    @Size(max = 50)
+    @Size(min = 2, max = 50)
     @Column(name = "nombre_documento", nullable = false, length = 50)
     private String nombreDocumento;
 
-    @Size(max = 150)
+    @Size(max = 150,message = "La descripcion no puede superar los 150 caracteres")
     @Column(name = "descripcion", length = 150)
     private String descripcion;
     

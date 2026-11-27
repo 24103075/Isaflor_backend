@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import cl.isaflor.isaflor.dto.ActualizarDetallePedidoRequest;
@@ -30,9 +31,11 @@ import cl.isaflor.isaflor.model.Pedido;
 import cl.isaflor.isaflor.model.Producto;
 import cl.isaflor.isaflor.model.Usuario;
 import cl.isaflor.isaflor.repository.DetallePedidoRepository;
+import cl.isaflor.isaflor.repository.PagoRepository;
 import cl.isaflor.isaflor.repository.PedidoRepository;
 import cl.isaflor.isaflor.repository.ProductoRepository;
 import cl.isaflor.isaflor.service.DetallePedidoService;
+import cl.isaflor.isaflor.service.PedidoValidaciones;
 
 @ExtendWith(MockitoExtension.class)
 class DetallePedidoServiceTest {
@@ -45,6 +48,12 @@ class DetallePedidoServiceTest {
 
     @Mock
     private ProductoRepository productoRepository;
+
+    @Mock
+    private PagoRepository pagoRepository;
+
+    @Mock
+    private PedidoValidaciones pedidoValidaciones;
 
     @InjectMocks
     private DetallePedidoService detallePedidoService;
@@ -59,6 +68,7 @@ class DetallePedidoServiceTest {
 
         pedido = new Pedido();
         pedido.setIdPedido(20);
+        pedido.setEstado("PENDIENTE");
         pedido.setUsuario(usuario);
 
         producto = new Producto();
@@ -120,11 +130,138 @@ class DetallePedidoServiceTest {
         request.setCantidad(1);
         when(pedidoRepository.findById(20)).thenReturn(Optional.of(pedido));
 
-        assertThrows(AccessDeniedException.class, () -> detallePedidoService.crearDetalle(
-                request, "otro@isaflor.cl", false));
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> detallePedidoService.crearDetalle(
+                        request, "otro@isaflor.cl", false));
 
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
         verify(productoRepository, never()).findById(5);
         verify(detallePedidoRepository, never()).save(any(DetallePedido.class));
+    }
+
+    @Test
+    void crearDetalleRechazaCantidadNulaCeroONegativa() {
+        for (Integer cantidad : new Integer[] {null, 0, -1}) {
+            CrearDetallePedidoRequest request = new CrearDetallePedidoRequest();
+            request.setIdPedido(20);
+            request.setIdProducto(5);
+            request.setCantidad(cantidad);
+
+            ResponseStatusException exception = assertThrows(
+                    ResponseStatusException.class,
+                    () -> detallePedidoService.crearDetalle(
+                            request, "cliente@isaflor.cl", false));
+
+            assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        }
+
+        verify(pedidoRepository, never()).findById(20);
+        verify(detallePedidoRepository, never()).save(any(DetallePedido.class));
+    }
+
+    @Test
+    void crearDetalleRechazaPedidoNoPendienteInclusoParaAdministrador() {
+        pedido.setEstado("CONFIRMADO");
+        CrearDetallePedidoRequest request = new CrearDetallePedidoRequest();
+        request.setIdPedido(20);
+        request.setIdProducto(5);
+        request.setCantidad(1);
+        when(pedidoRepository.findById(20)).thenReturn(Optional.of(pedido));
+        doThrow(new ResponseStatusException(
+                HttpStatus.CONFLICT, "El pedido no permite modificar detalles"))
+                .when(pedidoValidaciones)
+                .validarModificacionDetalles("CONFIRMADO");
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> detallePedidoService.crearDetalle(
+                        request, "admin@isaflor.cl", true));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(productoRepository, never()).findById(5);
+        verify(detallePedidoRepository, never()).save(any(DetallePedido.class));
+    }
+
+    @Test
+    void crearDetalleRechazaPedidoConPagoPagado() {
+        CrearDetallePedidoRequest request = new CrearDetallePedidoRequest();
+        request.setIdPedido(20);
+        request.setIdProducto(5);
+        request.setCantidad(1);
+        when(pedidoRepository.findById(20)).thenReturn(Optional.of(pedido));
+        when(pagoRepository.existsByPedido_IdPedidoAndEstadoPago(20, "PAGADO"))
+                .thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> detallePedidoService.crearDetalle(
+                        request, "cliente@isaflor.cl", false));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(productoRepository, never()).findById(5);
+        verify(detallePedidoRepository, never()).save(any(DetallePedido.class));
+    }
+
+    @Test
+    void actualizarCantidadRechazaCantidadNulaCeroONegativa() {
+        for (Integer cantidad : new Integer[] {null, 0, -1}) {
+            ActualizarDetallePedidoRequest request =
+                    new ActualizarDetallePedidoRequest();
+            request.setCantidad(cantidad);
+
+            ResponseStatusException exception = assertThrows(
+                    ResponseStatusException.class,
+                    () -> detallePedidoService.actualizarCantidad(
+                            7, request, "cliente@isaflor.cl", false));
+
+            assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        }
+
+        verify(detallePedidoRepository, never()).findById(7);
+        verify(detallePedidoRepository, never()).save(any(DetallePedido.class));
+    }
+
+    @Test
+    void actualizarCantidadRechazaPedidoNoPendiente() {
+        pedido.setEstado("EN_PREPARACION");
+        DetallePedido detalle = crearDetalle(7, 2, new BigDecimal("10000.00"),
+                new BigDecimal("20000.00"));
+        ActualizarDetallePedidoRequest request =
+                new ActualizarDetallePedidoRequest();
+        request.setCantidad(4);
+        when(detallePedidoRepository.findById(7)).thenReturn(Optional.of(detalle));
+        doThrow(new ResponseStatusException(
+                HttpStatus.CONFLICT, "El pedido no permite modificar detalles"))
+                .when(pedidoValidaciones)
+                .validarModificacionDetalles("EN_PREPARACION");
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> detallePedidoService.actualizarCantidad(
+                        7, request, "cliente@isaflor.cl", false));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(detallePedidoRepository, never()).save(detalle);
+    }
+
+    @Test
+    void actualizarCantidadRechazaPedidoConPagoPagado() {
+        DetallePedido detalle = crearDetalle(7, 2, new BigDecimal("10000.00"),
+                new BigDecimal("20000.00"));
+        ActualizarDetallePedidoRequest request = new ActualizarDetallePedidoRequest();
+        request.setCantidad(4);
+        when(detallePedidoRepository.findById(7)).thenReturn(Optional.of(detalle));
+        when(pagoRepository.existsByPedido_IdPedidoAndEstadoPago(20, "PAGADO"))
+                .thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> detallePedidoService.actualizarCantidad(
+                        7, request, "cliente@isaflor.cl", false));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(detallePedidoRepository, never()).save(detalle);
     }
 
     @Test
@@ -160,6 +297,45 @@ class DetallePedidoServiceTest {
         assertEquals(BigDecimal.ZERO, pedido.getTotal());
         verify(detallePedidoRepository).delete(detalle);
         verify(pedidoRepository).save(pedido);
+    }
+
+    @Test
+    void eliminarDetalleRechazaPedidoNoPendiente() {
+        pedido.setEstado("CANCELADO");
+        DetallePedido detalle = crearDetalle(7, 2, new BigDecimal("10000.00"),
+                new BigDecimal("20000.00"));
+        when(detallePedidoRepository.findById(7)).thenReturn(Optional.of(detalle));
+        doThrow(new ResponseStatusException(
+                HttpStatus.CONFLICT, "El pedido no permite modificar detalles"))
+                .when(pedidoValidaciones)
+                .validarModificacionDetalles("CANCELADO");
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> detallePedidoService.eliminarDetalle(
+                        7, "cliente@isaflor.cl", false));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(detallePedidoRepository, never()).delete(detalle);
+        verify(pedidoRepository, never()).save(pedido);
+    }
+
+    @Test
+    void eliminarDetalleRechazaPedidoConPagoPagado() {
+        DetallePedido detalle = crearDetalle(7, 2, new BigDecimal("10000.00"),
+                new BigDecimal("20000.00"));
+        when(detallePedidoRepository.findById(7)).thenReturn(Optional.of(detalle));
+        when(pagoRepository.existsByPedido_IdPedidoAndEstadoPago(20, "PAGADO"))
+                .thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> detallePedidoService.eliminarDetalle(
+                        7, "cliente@isaflor.cl", false));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(detallePedidoRepository, never()).delete(detalle);
+        verify(pedidoRepository, never()).save(pedido);
     }
 
     @Test

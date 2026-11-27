@@ -68,6 +68,7 @@ public class DetallePedidoController {
     @ApiResponse(responseCode = "400", description = "Datos invalidos")
     @ApiResponse(responseCode = "403", description = "No autorizado para modificar el pedido")
     @ApiResponse(responseCode = "404", description = "Pedido o producto no encontrado")
+    @ApiResponse(responseCode = "409", description = "El pedido no permite modificar detalles")
     public ResponseEntity<DetallePedidoDTO> crear(
             @Valid @RequestBody CrearDetallePedidoRequest request,
             Authentication authentication) {
@@ -80,8 +81,10 @@ public class DetallePedidoController {
     @Operation(summary = "Actualizar cantidad de un detalle de pedido",
             description = "Recalcula el subtotal y el total del pedido usando el precio histórico")
     @ApiResponse(responseCode = "200", description = "Detalle actualizado correctamente")
+    @ApiResponse(responseCode = "400", description = "Cantidad invalida")
     @ApiResponse(responseCode = "403", description = "No autorizado para modificar el pedido")
     @ApiResponse(responseCode = "404", description = "Detalle no encontrado")
+    @ApiResponse(responseCode = "409", description = "El pedido no permite modificar detalles")
     public ResponseEntity<DetallePedidoDTO> actualizar(
             @PathVariable Integer id,
             @Valid @RequestBody ActualizarDetallePedidoRequest request,
@@ -95,6 +98,7 @@ public class DetallePedidoController {
     @ApiResponse(responseCode = "200", description = "Detalle eliminado correctamente")
     @ApiResponse(responseCode = "403", description = "No autorizado para modificar el pedido")
     @ApiResponse(responseCode = "404", description = "Detalle no encontrado")
+    @ApiResponse(responseCode = "409", description = "El pedido no permite modificar detalles")
     public ResponseEntity<String> eliminar(
             @PathVariable Integer id,
             Authentication authentication) {
