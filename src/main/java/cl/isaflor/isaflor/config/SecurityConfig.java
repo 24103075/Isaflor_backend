@@ -20,13 +20,16 @@ import jakarta.servlet.DispatcherType;
 @Configuration
 public class SecurityConfig {
 
-    // Protección de contraseñas mediante BCrypt
+    // Proteccion de contrasenas mediante BCrypt
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configuración de seguridad
+
+    // Configuracion de seguridad
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
@@ -34,7 +37,7 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-            // Desactivar CSRF para la futura autenticación JWT
+            // Desactivar CSRF para la futura autenticacion JWT
             .csrf(csrf -> csrf.disable())
 
             // No mantener sesiones en el servidor
@@ -47,14 +50,14 @@ public class SecurityConfig {
                 // Permitir el procesamiento interno de errores
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
 
-                // Permitir solicitudes de verificación CORS
+                // Permitir solicitudes de verificacion CORS
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // Registro público de clientes
+                // Registro publico de clientes
                 .requestMatchers(HttpMethod.POST,
                         "/api/v1/auth/registro").permitAll()
 
-                // Consulta pública de comunas
+                // Consulta publica de comunas
                 .requestMatchers(HttpMethod.GET,
                         "/api/v1/comunas",
                         "/api/v1/comunas/**").permitAll()
@@ -62,7 +65,7 @@ public class SecurityConfig {
                 // Monitoreo de UptimeRobot
                 .requestMatchers("/actuator/health").permitAll()
 
-                //Permitir acceso publico a swagger
+                // Permitir acceso publico a Swagger
                 .requestMatchers(
                         "/swagger-ui/**",
                         "/swagger-ui.html",
@@ -73,45 +76,47 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/usuarios",
                         "/api/v1/usuarios/**").hasRole("ADMINISTRADOR")
 
-                // Consulta pública de productos
+                // Consulta publica de productos
                 .requestMatchers(HttpMethod.GET,
                         "/api/v1/productos",
                         "/api/v1/productos/**").permitAll()
 
-                // Administración de productos
+                // Administracion de productos y ofertas
                 .requestMatchers("/api/v1/productos",
                         "/api/v1/productos/**").hasRole("ADMINISTRADOR")
 
-                // Bloquear rutas que aún no hemos configurado
+                // Bloquear rutas que aun no hemos configurado
                 .anyRequest().denyAll()
-
-                
-            );  
-            
+            );
 
         return http.build();
     }
 
-    // Configuración CORS
+
+    // Configuracion CORS
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // Autorizar la comunicación con React
+        // Autorizar la comunicacion con React
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:8080"
         ));
 
+        // Metodos HTTP permitidos
         config.setAllowedMethods(List.of(
                 "GET",
                 "POST",
                 "PUT",
+                "PATCH",
                 "DELETE",
                 "OPTIONS"
         ));
 
+        // Encabezados permitidos
         config.setAllowedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
@@ -125,6 +130,4 @@ public class SecurityConfig {
 
         return source;
     }
-
-    
 }

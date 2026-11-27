@@ -1,154 +1,305 @@
+
 package cl.isaflor.isaflor.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import cl.isaflor.isaflor.dto.OfertaDTO;
 import cl.isaflor.isaflor.dto.ProductoDTO;
 import cl.isaflor.isaflor.model.Categoria;
 import cl.isaflor.isaflor.model.Producto;
 import cl.isaflor.isaflor.repository.CategoriaRepository;
 import cl.isaflor.isaflor.repository.ProductoRepository;
 
-@Service 
+@Service
 public class ProductoService {
 
     private final ProductoRepository productoRepository;
     private final ProductoValidaciones productoValidaciones;
     private final CategoriaRepository categoriaRepository;
 
-    // constructor 
+
+    // CONSTRUCTOR
+
     public ProductoService(
-            ProductoRepository productoRepository, 
-            ProductoValidaciones productoValidaciones,      
-            CategoriaRepository categoriaRepository){
-                            
-            this.productoRepository = productoRepository;
-            this.productoValidaciones = productoValidaciones;
-            this.categoriaRepository = categoriaRepository;
-            }
-    
-    //LISTAR PRODUCTO
+            ProductoRepository productoRepository,
+            ProductoValidaciones productoValidaciones,
+            CategoriaRepository categoriaRepository) {
+
+        this.productoRepository = productoRepository;
+        this.productoValidaciones = productoValidaciones;
+        this.categoriaRepository = categoriaRepository;
+    }
+
+
+    // =========================================
+    // LISTAR PRODUCTOS
+    // =========================================
+
     public List<ProductoDTO> listarProductos() {
-        return productoRepository.findAll().stream().map(productoValidaciones::convertirADTO).toList();
+
+        return productoRepository.findAll()
+                .stream()
+                .map(productoValidaciones::convertirADTO)
+                .toList();
     }
 
-    //BUSCAR PRODUCTO POR ID
-     public ProductoDTO buscarPorId(Integer id) {
 
-        try {
-            Producto producto = productoRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("No se encontro el producto con ID: " + id));
+    // =========================================
+    // BUSCAR PRODUCTO POR ID
+    // =========================================
 
-            return productoValidaciones.convertirADTO(producto);
+    public ProductoDTO buscarPorId(Integer id) {
 
-        } catch (RuntimeException e) {
-            throw e;
-        }
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "No se encontro el producto con ID: " + id));
+
+        return productoValidaciones.convertirADTO(producto);
     }
 
-    //GUARDAR PRODUCTO
+
+    // =========================================
+    // GUARDAR PRODUCTO
+    // =========================================
+
+    @Transactional
     public ProductoDTO guardarProducto(Producto producto) {
 
-        try {
-            if (!productoValidaciones.validarNullVacio(producto)) {
-                throw new RuntimeException( "El codigo,nombre y descripcion son obligatorios");
-            }
+        // Validar datos obligatorios
 
-            producto.setCodigoProducto(producto.getCodigoProducto().trim());
-            producto.setNombreProducto(producto.getNombreProducto().trim());
-            producto.setDescripcion(producto.getDescripcion().trim());
+        if (!productoValidaciones.validarNullVacio(producto)) {
 
-            if (productoRepository.existsByCodigoProductoIgnoreCase(producto.getCodigoProducto())) {
-                throw new RuntimeException("Ya existe un producto con ese codigo");
-            }
-
-            if (producto.getCategoria() == null || producto.getCategoria().getIdCategoria() == null) {
-                throw new RuntimeException("Debe seleccionar una categoria");
-            }
-
-            Categoria categoria = categoriaRepository.findById(producto.getCategoria().getIdCategoria())
-                                    .orElseThrow(() -> new RuntimeException("La categoria no existe"));
-
-            producto.setCategoria(categoria);
-
-            Producto productoGuardado = productoRepository.save(producto);
-
-            return productoValidaciones.convertirADTO(productoGuardado);
-
-        } catch (RuntimeException e) {
-            throw e;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al guardar el producto: " + e.getMessage(), e);
+            throw new RuntimeException(
+                    "El codigo, nombre y descripcion son obligatorios");
         }
-    }
-    
-    //ACTUALIZAR PRODUCTO
-    public ProductoDTO actualizarProducto(Integer id, Producto productoNuevo) {
 
-        try {
-            Producto productoExistente = productoRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("No se encontro el producto con ID: " + id));
 
-            if (!productoValidaciones.validarNullVacio(productoNuevo)) {
-                throw new RuntimeException("El cOdigo,nombre y descripciOn son obligatorios");
-            }
+        // Eliminar espacios innecesarios
 
-            String nuevoCodigo = productoNuevo.getCodigoProducto().trim();
+        producto.setCodigoProducto(
+                producto.getCodigoProducto().trim());
 
-            if (!productoExistente.getCodigoProducto().equalsIgnoreCase(nuevoCodigo)
-                    && productoRepository.existsByCodigoProductoIgnoreCase(nuevoCodigo)) {
+        producto.setNombreProducto(
+                producto.getNombreProducto().trim());
 
-                throw new RuntimeException("Ya existe otro producto con ese codigo");
-            }
+        producto.setDescripcion(
+                producto.getDescripcion().trim());
 
-            if (productoNuevo.getCategoria() == null || productoNuevo.getCategoria().getIdCategoria() == null) {
 
-                throw new RuntimeException("Debe seleccionar una categoria");
-            }
+        // Validar codigo duplicado
 
-            Categoria categoria = categoriaRepository.findById(
-                    productoNuevo.getCategoria().getIdCategoria())
-                    .orElseThrow(() -> new RuntimeException( "La categoria no existe"));
+        if (productoRepository.existsByCodigoProductoIgnoreCase(
+                producto.getCodigoProducto())) {
 
-            productoExistente.setCodigoProducto(nuevoCodigo);
-            productoExistente.setNombreProducto(
-            productoNuevo.getNombreProducto().trim());
-            productoExistente.setDescripcion(
-            productoNuevo.getDescripcion().trim());
-            productoExistente.setPrecioProducto(productoNuevo.getPrecioProducto());
-            productoExistente.setStockProducto(productoNuevo.getStockProducto());
-            productoExistente.setStockCritico(productoNuevo.getStockCritico());
-            productoExistente.setPesoProducto(productoNuevo.getPesoProducto());
-            productoExistente.setPesoVolumetrico(productoNuevo.getPesoVolumetrico());
-            productoExistente.setCategoria(categoria);
-
-            Producto actualizado = productoRepository.save(productoExistente);
-
-            return productoValidaciones.convertirADTO(actualizado);
-
-        } catch (RuntimeException e) {
-            throw e;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al actualizar el producto: " + e.getMessage(), e);
+            throw new RuntimeException(
+                    "Ya existe un producto con ese codigo");
         }
+
+
+        // Validar categoria
+
+        if (producto.getCategoria() == null ||
+                producto.getCategoria().getIdCategoria() == null) {
+
+            throw new RuntimeException(
+                    "Debe seleccionar una categoria");
+        }
+
+        Categoria categoria = categoriaRepository.findById(
+                producto.getCategoria().getIdCategoria())
+                .orElseThrow(() -> new RuntimeException(
+                        "La categoria no existe"));
+
+        producto.setCategoria(categoria);
+
+
+        // Garantizar que se cree un producto nuevo
+
+        producto.setIdProducto(null);
+
+
+        // Validar oferta
+
+        productoValidaciones.validarOferta(producto);
+
+
+        // Guardar producto
+
+        Producto productoGuardado =
+                productoRepository.save(producto);
+
+        return productoValidaciones.convertirADTO(
+                productoGuardado);
     }
+
+
+    // =========================================
+    // ACTUALIZAR PRODUCTO
+    // =========================================
+
+    @Transactional
+    public ProductoDTO actualizarProducto(
+            Integer id, Producto productoNuevo) {
+
+        Producto productoExistente =
+                productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "No se encontro el producto con ID: " + id));
+
+
+        // Validar datos obligatorios
+
+        if (!productoValidaciones.validarNullVacio(productoNuevo)) {
+
+            throw new RuntimeException(
+                    "El codigo, nombre y descripcion son obligatorios");
+        }
+
+
+        // Validar codigo duplicado
+
+        String nuevoCodigo =
+                productoNuevo.getCodigoProducto().trim();
+
+        if (!productoExistente.getCodigoProducto()
+                .equalsIgnoreCase(nuevoCodigo)
+
+                && productoRepository
+                .existsByCodigoProductoIgnoreCase(nuevoCodigo)) {
+
+            throw new RuntimeException(
+                    "Ya existe otro producto con ese codigo");
+        }
+
+
+        // Validar categoria
+
+        if (productoNuevo.getCategoria() == null ||
+                productoNuevo.getCategoria().getIdCategoria() == null) {
+
+            throw new RuntimeException(
+                    "Debe seleccionar una categoria");
+        }
+
+        Categoria categoria = categoriaRepository.findById(
+                productoNuevo.getCategoria().getIdCategoria())
+                .orElseThrow(() -> new RuntimeException(
+                        "La categoria no existe"));
+
+
+        // Actualizar datos generales
+
+        productoExistente.setCodigoProducto(nuevoCodigo);
+
+        productoExistente.setNombreProducto(
+                productoNuevo.getNombreProducto().trim());
+
+        productoExistente.setDescripcion(
+                productoNuevo.getDescripcion().trim());
+
+        productoExistente.setPrecioProducto(
+                productoNuevo.getPrecioProducto());
+
+
+        // Actualizar inventario
+
+        productoExistente.setStockProducto(
+                productoNuevo.getStockProducto());
+
+        productoExistente.setStockCritico(
+                productoNuevo.getStockCritico());
+
+
+        // Actualizar pesos
+
+        productoExistente.setPesoProducto(
+                productoNuevo.getPesoProducto());
+
+        productoExistente.setPesoVolumetrico(
+                productoNuevo.getPesoVolumetrico());
+
+
+        // Actualizar categoria
+
+        productoExistente.setCategoria(categoria);
+
+
+        // Conservar la oferta existente y comprobar
+        // que siga siendo valida con el precio actualizado
+
+        productoValidaciones.validarOferta(productoExistente);
+
+
+        // Guardar cambios
+
+        Producto actualizado =
+                productoRepository.save(productoExistente);
+
+        return productoValidaciones.convertirADTO(actualizado);
+    }
+
+
+    // =========================================
+    // GESTIONAR OFERTA
+    // =========================================
+
+    @Transactional
+    public ProductoDTO actualizarOferta(
+            Integer id, OfertaDTO oferta) {
+
+        // Buscar producto
+
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "No se encontro el producto con ID: " + id));
+
+
+        // Validar estado de la oferta
+
+        if (oferta == null || oferta.getEnOferta() == null) {
+
+            throw new IllegalArgumentException(
+                    "Debe indicar el estado de la oferta");
+        }
+
+
+        // Actualizar estado y precio de la oferta
+
+        producto.setEnOferta(oferta.getEnOferta());
+
+        producto.setPrecioOferta(oferta.getPrecioOferta());
+
+
+        // Validar reglas de negocio
+
+        productoValidaciones.validarOferta(producto);
+
+
+        // Guardar cambios en Neon
+
+        Producto actualizado =
+                productoRepository.save(producto);
+
+        return productoValidaciones.convertirADTO(actualizado);
+    }
+
+
+    // =========================================
+    // ELIMINAR PRODUCTO
+    // =========================================
 
     public String eliminarProducto(Integer id) {
 
-        try {
-            Producto producto = productoRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("No se encontro el producto con ID: " + id));
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "No se encontro el producto con ID: " + id));
 
-            productoRepository.delete(producto);
+        productoRepository.delete(producto);
 
-            return "Producto eliminado correctamente";
-
-        } catch (RuntimeException e) {
-            throw e;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al eliminar el producto: " + e.getMessage(), e);
-        }
+        return "Producto eliminado correctamente";
     }
 }
