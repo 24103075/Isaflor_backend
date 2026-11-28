@@ -2,6 +2,7 @@
 package cl.isaflor.isaflor.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -67,4 +68,6 @@ public class ProductoDTO {
     private Integer idCategoria;
 
     private String nombreCategoria;
+
+    private List<String> imagenes;
 }
