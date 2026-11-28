@@ -2,6 +2,7 @@
 package cl.isaflor.isaflor.service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -10,10 +11,6 @@ import cl.isaflor.isaflor.model.Producto;
 
 @Service
 public class ProductoValidaciones {
-
-    // =========================================
-    // VALIDAR DATOS OBLIGATORIOS
-    // =========================================
 
     public Boolean validarNullVacio(Producto producto) {
 
@@ -35,108 +32,58 @@ public class ProductoValidaciones {
         return true;
     }
 
-
-    // =========================================
-    // VALIDAR OFERTAS
-    // =========================================
-
     public void validarOferta(Producto producto) {
 
         Boolean enOferta = producto.getEnOferta();
-
         BigDecimal precioOriginal = producto.getPrecioProducto();
-
         BigDecimal precioOferta = producto.getPrecioOferta();
 
-
-        // Validar el estado de la oferta
-
         if (enOferta == null) {
-
             throw new IllegalArgumentException(
                 "El estado de la oferta es obligatorio"
             );
-
         }
 
-
-        // Validar producto sin oferta
-
         if (!enOferta) {
-
             if (precioOferta != null) {
-
                 throw new IllegalArgumentException(
                     "Un producto sin oferta no debe tener precio de oferta"
                 );
-
             }
-
             return;
         }
 
-
-        // Validar precio original
-
         if (precioOriginal == null ||
             precioOriginal.compareTo(BigDecimal.ZERO) <= 0) {
-
             throw new IllegalArgumentException(
                 "El precio original debe ser mayor a cero"
             );
-
         }
 
-
-        // Validar que exista un precio de oferta
-
         if (precioOferta == null) {
-
             throw new IllegalArgumentException(
                 "Debe ingresar un precio para activar la oferta"
             );
-
         }
 
-
-        // Validar que el precio de oferta sea positivo
-
         if (precioOferta.compareTo(BigDecimal.ZERO) <= 0) {
-
             throw new IllegalArgumentException(
                 "El precio de oferta debe ser mayor a cero"
             );
-
         }
 
-
-        // Validar cantidad de decimales
-
         if (precioOferta.stripTrailingZeros().scale() > 2) {
-
             throw new IllegalArgumentException(
                 "El precio de oferta no puede tener mas de dos decimales"
             );
-
         }
 
-
-        // Validar que el precio de oferta sea inferior al original
-
         if (precioOferta.compareTo(precioOriginal) >= 0) {
-
             throw new IllegalArgumentException(
                 "El precio de oferta debe ser menor al precio original"
             );
-
         }
-
     }
-
-
-    // =========================================
-    // CONVERTIR ENTIDAD PRODUCTO A DTO
-    // =========================================
 
     public ProductoDTO convertirADTO(Producto producto) {
 
@@ -171,6 +118,20 @@ public class ProductoValidaciones {
             productoDTO.setNombreCategoria(
                 producto.getCategoria().getNombreCategoria()
             );
+        }
+
+        if (producto.getImagenes() != null) {
+
+            List<String> imagenes = producto.getImagenes()
+                .stream()
+                .map(imagen -> imagen.getUrlImagen())
+                .toList();
+
+            productoDTO.setImagenes(imagenes);
+
+        } else {
+
+            productoDTO.setImagenes(List.of());
 
         }
 

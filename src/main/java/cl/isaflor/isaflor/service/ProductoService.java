@@ -34,11 +34,7 @@ public class ProductoService {
         this.categoriaRepository = categoriaRepository;
     }
 
-
-    // =========================================
-    // LISTAR PRODUCTOS
-    // =========================================
-
+    @Transactional(readOnly = true)
     public List<ProductoDTO> listarProductos() {
 
         return productoRepository.findAll()
@@ -47,11 +43,7 @@ public class ProductoService {
                 .toList();
     }
 
-
-    // =========================================
-    // BUSCAR PRODUCTO POR ID
-    // =========================================
-
+    @Transactional(readOnly = true)
     public ProductoDTO buscarPorId(Integer id) {
 
         Producto producto = productoRepository.findById(id)
