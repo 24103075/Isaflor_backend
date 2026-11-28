@@ -81,7 +81,7 @@ public class DetallePedidoService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "No se encontro el producto con ID: " + request.getIdProducto()));
 
-        BigDecimal precioUnitario = producto.getPrecioProducto();
+        BigDecimal precioUnitario = determinarPrecioUnitario(producto);
         DetallePedido detalle = new DetallePedido();
         detalle.setCantidad(request.getCantidad());
         detalle.setPrecioUnitario(precioUnitario);
@@ -124,6 +124,39 @@ public class DetallePedidoService {
         detallePedidoRepository.delete(detalle);
         actualizarTotalPedido(pedido);
         return "Detalle del pedido eliminado correctamente";
+    }
+
+    private BigDecimal determinarPrecioUnitario(Producto producto) {
+        BigDecimal precioNormal = producto.getPrecioProducto();
+        if (precioNormal == null || precioNormal.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "El producto no tiene un precio normal valido");
+        }
+
+        Boolean enOferta = producto.getEnOferta();
+        if (enOferta == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "El producto no tiene un estado de oferta valido");
+        }
+        if (!enOferta) {
+            return precioNormal;
+        }
+
+        BigDecimal precioOferta = producto.getPrecioOferta();
+        if (precioOferta == null || precioOferta.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "El producto en oferta debe tener un precio de oferta mayor a cero");
+        }
+        if (precioOferta.compareTo(precioNormal) > 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "El precio de oferta no puede superar el precio normal");
+        }
+
+        return precioOferta;
     }
 
     private DetallePedido buscarDetalleEntidad(Integer id) {

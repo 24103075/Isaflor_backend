@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -75,6 +76,7 @@ class DetallePedidoServiceTest {
         producto.setIdProducto(5);
         producto.setNombreProducto("Ramo de rosas");
         producto.setPrecioProducto(new BigDecimal("12000.00"));
+        producto.setEnOferta(false);
     }
 
     @Test
@@ -120,6 +122,117 @@ class DetallePedidoServiceTest {
         assertEquals(new BigDecimal("36000.00"), resultado.getSubTotal());
         assertEquals(new BigDecimal("36000.00"), pedido.getTotal());
         verify(pedidoRepository).save(pedido);
+    }
+
+    @Test
+    void crearDetalleUsaPrecioOfertaYCalculaSubtotal() {
+        producto.setEnOferta(true);
+        producto.setPrecioOferta(new BigDecimal("9000.00"));
+        CrearDetallePedidoRequest request = new CrearDetallePedidoRequest();
+        request.setIdPedido(20);
+        request.setIdProducto(5);
+        request.setCantidad(3);
+
+        AtomicReference<DetallePedido> guardado = new AtomicReference<>();
+        when(pedidoRepository.findById(20)).thenReturn(Optional.of(pedido));
+        when(productoRepository.findById(5)).thenReturn(Optional.of(producto));
+        when(detallePedidoRepository.save(any(DetallePedido.class))).thenAnswer(invocation -> {
+            DetallePedido detalle = invocation.getArgument(0);
+            guardado.set(detalle);
+            return detalle;
+        });
+        when(detallePedidoRepository.findByPedido_IdPedido(20))
+                .thenAnswer(invocation -> List.of(guardado.get()));
+
+        DetallePedidoDTO resultado = detallePedidoService.crearDetalle(
+                request, "cliente@isaflor.cl", false);
+
+        assertEquals(new BigDecimal("9000.00"), resultado.getPrecioUnitario());
+        assertEquals(new BigDecimal("27000.00"), resultado.getSubTotal());
+        assertEquals(new BigDecimal("27000.00"), pedido.getTotal());
+    }
+
+    @Test
+    void crearDetallesNormalesYEnOfertaRecalculaTotalCombinado() {
+        Producto productoEnOferta = new Producto();
+        productoEnOferta.setIdProducto(6);
+        productoEnOferta.setNombreProducto("Ramo de tulipanes");
+        productoEnOferta.setPrecioProducto(new BigDecimal("15000.00"));
+        productoEnOferta.setPrecioOferta(new BigDecimal("9000.00"));
+        productoEnOferta.setEnOferta(true);
+
+        List<DetallePedido> detallesGuardados = new ArrayList<>();
+        when(pedidoRepository.findById(20)).thenReturn(Optional.of(pedido));
+        when(productoRepository.findById(5)).thenReturn(Optional.of(producto));
+        when(productoRepository.findById(6)).thenReturn(Optional.of(productoEnOferta));
+        when(detallePedidoRepository.save(any(DetallePedido.class))).thenAnswer(invocation -> {
+            DetallePedido detalle = invocation.getArgument(0);
+            detallesGuardados.add(detalle);
+            return detalle;
+        });
+        when(detallePedidoRepository.findByPedido_IdPedido(20))
+                .thenAnswer(invocation -> new ArrayList<>(detallesGuardados));
+
+        CrearDetallePedidoRequest requestNormal = new CrearDetallePedidoRequest();
+        requestNormal.setIdPedido(20);
+        requestNormal.setIdProducto(5);
+        requestNormal.setCantidad(2);
+        DetallePedidoDTO detalleNormal = detallePedidoService.crearDetalle(
+                requestNormal, "cliente@isaflor.cl", false);
+
+        CrearDetallePedidoRequest requestOferta = new CrearDetallePedidoRequest();
+        requestOferta.setIdPedido(20);
+        requestOferta.setIdProducto(6);
+        requestOferta.setCantidad(3);
+        DetallePedidoDTO detalleOferta = detallePedidoService.crearDetalle(
+                requestOferta, "cliente@isaflor.cl", false);
+
+        assertEquals(new BigDecimal("24000.00"), detalleNormal.getSubTotal());
+        assertEquals(new BigDecimal("27000.00"), detalleOferta.getSubTotal());
+        assertEquals(new BigDecimal("51000.00"), pedido.getTotal());
+    }
+
+    @Test
+    void crearDetalleRechazaPrecioOfertaNuloCeroONegativo() {
+        producto.setEnOferta(true);
+        CrearDetallePedidoRequest request = new CrearDetallePedidoRequest();
+        request.setIdPedido(20);
+        request.setIdProducto(5);
+        request.setCantidad(1);
+        when(pedidoRepository.findById(20)).thenReturn(Optional.of(pedido));
+        when(productoRepository.findById(5)).thenReturn(Optional.of(producto));
+
+        for (BigDecimal precioOferta : new BigDecimal[] {
+                null, BigDecimal.ZERO, new BigDecimal("-1.00") }) {
+            producto.setPrecioOferta(precioOferta);
+            ResponseStatusException exception = assertThrows(
+                    ResponseStatusException.class,
+                    () -> detallePedidoService.crearDetalle(
+                            request, "cliente@isaflor.cl", false));
+            assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        }
+
+        verify(detallePedidoRepository, never()).save(any(DetallePedido.class));
+    }
+
+    @Test
+    void crearDetalleRechazaPrecioOfertaSuperiorAlPrecioNormal() {
+        producto.setEnOferta(true);
+        producto.setPrecioOferta(new BigDecimal("12000.01"));
+        CrearDetallePedidoRequest request = new CrearDetallePedidoRequest();
+        request.setIdPedido(20);
+        request.setIdProducto(5);
+        request.setCantidad(1);
+        when(pedidoRepository.findById(20)).thenReturn(Optional.of(pedido));
+        when(productoRepository.findById(5)).thenReturn(Optional.of(producto));
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> detallePedidoService.crearDetalle(
+                        request, "cliente@isaflor.cl", false));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(detallePedidoRepository, never()).save(any(DetallePedido.class));
     }
 
     @Test
@@ -268,6 +381,7 @@ class DetallePedidoServiceTest {
     void actualizarCantidadConservaPrecioHistoricoYRecalculaTotal() {
         DetallePedido detalle = crearDetalle(7, 2, new BigDecimal("10000.00"),
                 new BigDecimal("20000.00"));
+        producto.setPrecioProducto(new BigDecimal("5000.00"));
         ActualizarDetallePedidoRequest request = new ActualizarDetallePedidoRequest();
         request.setCantidad(4);
         when(detallePedidoRepository.findById(7)).thenReturn(Optional.of(detalle));
@@ -287,14 +401,17 @@ class DetallePedidoServiceTest {
     void eliminarDetalleRecalculaTotalDelPedido() {
         DetallePedido detalle = crearDetalle(7, 2, new BigDecimal("10000.00"),
                 new BigDecimal("20000.00"));
+        DetallePedido detalleRestante = crearDetalle(
+                8, 3, new BigDecimal("4000.00"), new BigDecimal("12000.00"));
         when(detallePedidoRepository.findById(7)).thenReturn(Optional.of(detalle));
-        when(detallePedidoRepository.findByPedido_IdPedido(20)).thenReturn(List.of());
+        when(detallePedidoRepository.findByPedido_IdPedido(20))
+                .thenReturn(List.of(detalleRestante));
 
         String resultado = detallePedidoService.eliminarDetalle(
                 7, "cliente@isaflor.cl", false);
 
         assertEquals("Detalle del pedido eliminado correctamente", resultado);
-        assertEquals(BigDecimal.ZERO, pedido.getTotal());
+        assertEquals(new BigDecimal("12000.00"), pedido.getTotal());
         verify(detallePedidoRepository).delete(detalle);
         verify(pedidoRepository).save(pedido);
     }

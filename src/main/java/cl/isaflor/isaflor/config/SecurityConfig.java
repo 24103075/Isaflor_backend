@@ -326,7 +326,8 @@ public class SecurityConfig {
         // Autorizar la comunicacion con React
         config.setAllowedOrigins(List.of(
             "http://localhost:5173",
-            "http://localhost:8080"
+            "http://localhost:8080",
+            "https://isa-flor.vercel.app"
         ));
 
         // Metodos HTTP permitidos
